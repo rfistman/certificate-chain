@@ -10,6 +10,8 @@ import (
 )
 
 // TODO: version number in client CommonName?
+// should have read this first
+// https://github.com/yunabe/practice/blob/master/golang/tls.go
 
 func helloHandler(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("hello")
@@ -41,36 +43,27 @@ func main() {
 		// openssl s_client -connect localhost:8081 -tls1 + http requests
 		err = http.ListenAndServeTLS(":8081", serverCert, serverKey, nil)
 	} else {
-		// trying client authentication, with CommonName client
-		// openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout client-key.pem -out client-cert.pem
+		// trying client authentication. Must be signed by CA
 		// can hit with:
 		// curl --cacert server-cert.pem --cert client-cert.pem --key client-key.pem  https://localhost:8081/hello
-		// p12 export:
-		// openssl pkcs12 -export -out client.p12 -inkey client-key.pem -in client-cert.pem
-		certPool := x509.NewCertPool()
-		clientPem, err := ioutil.ReadFile("client-cert.pem")
+		// handy. to squash self sign warning add -CAfile server-cert.pem
+		// openssl s_client -connect localhost:8081 -key client-key.pem -cert client-cert.pem -tls1
+		clientCertPool := x509.NewCertPool()
+		caCertPEM, err := ioutil.ReadFile("FistCA/FistCA-cert.pem")
 		if err != nil {
 			log.Fatal(err)
 		}
-		if !certPool.AppendCertsFromPEM(clientPem) {
-			log.Fatal("no client certs")
+		if !clientCertPool.AppendCertsFromPEM(caCertPEM) {
+			log.Fatal("no client root certs")
 		}
 
 		// clientAuthType := tls.NoClientCert	// don't request client cert
 		// clientAuthType := tls.RequestClientCert 	// works with any client cert
 		// clientAuthType := tls.RequireAnyClientCert // works with any client
-		// clientAuthType := tls.VerifyClientCertIfGiven // allows no cert, gets bad cert for wrong, handshake fail for mine.
-		clientAuthType := tls.RequireAndVerifyClientCert // no cert or wrong cert = bad certificate, handshake fail for mine
+		// clientAuthType := tls.VerifyClientCertIfGiven // allows no cert, gets bad cert for wrong, working for mine.
+		clientAuthType := tls.RequireAndVerifyClientCert // no cert or wrong cert = bad certificate, working for mine
 
-		// not working with
-		// openssl s_client -connect localhost:8081 -key client-key.pem -cert client-cert.pem -tls1
-
-		// try creating RootCAs with client auth?
-		// why is certPool not working?
-		// do I need to be own CA?
-		// I guess I can check common name, but that's not right
-		// config.InsecureSkipVerify: true is only for outgoing
-		config := &tls.Config{ /* Certificates: nil , InsecureSkipVerify: true, */ ClientAuth: clientAuthType, ClientCAs: certPool}
+		config := &tls.Config{ClientAuth: clientAuthType, ClientCAs: clientCertPool}
 
 		server := &http.Server{Addr: ":8081", Handler: nil, TLSConfig: config}
 		err = server.ListenAndServeTLS(serverCert, serverKey)
