@@ -38,6 +38,7 @@ func main() {
 	if false {
 		// can hit with (NB: requires common name match)
 		// curl --cacert server-cert.pem https://localhost:8081/hello
+		// openssl s_client -connect localhost:8081 -tls1 + http requests
 		err = http.ListenAndServeTLS(":8081", serverCert, serverKey, nil)
 	} else {
 		// trying client authentication, with CommonName client
@@ -60,6 +61,9 @@ func main() {
 		// clientAuthType := tls.RequireAnyClientCert // works with any client
 		// clientAuthType := tls.VerifyClientCertIfGiven // allows no cert, gets bad cert for wrong, handshake fail for mine.
 		clientAuthType := tls.RequireAndVerifyClientCert // no cert or wrong cert = bad certificate, handshake fail for mine
+
+		// not working with
+		// openssl s_client -connect localhost:8081 -key client-key.pem -cert client-cert.pem -tls1
 
 		// try creating RootCAs with client auth?
 		// why is certPool not working?
