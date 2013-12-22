@@ -43,7 +43,9 @@ func main() {
 		// openssl s_client -connect localhost:8081 -tls1 + http requests
 		err = http.ListenAndServeTLS(":8081", serverCert, serverKey, nil)
 	} else {
-		// trying client authentication. Must be signed by CA
+		// client authentication.
+		// Client cert must be signed by CA/have non-zero chain (tls or go tls requirement?)
+		// and have x509.ExtKeyUsageClientAuth https://code.google.com/p/go/issues/detail?id=5987
 		// can hit with:
 		// curl --cacert server-cert.pem --cert client-cert.pem --key client-key.pem  https://localhost:8081/hello
 		// handy. to squash self sign warning add -CAfile server-cert.pem
