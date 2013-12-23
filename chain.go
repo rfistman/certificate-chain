@@ -23,6 +23,7 @@ var (
 	certType     = flag.String("type", "ca", "ca|client|server")
 	dstDir       = flag.String("dst", ".", "destination directory for cert + key")
 	parentDir    = flag.String("parent", "", "parent certificate")
+	commonName   = flag.String("cn", "", "Common Name")
 )
 
 func main() {
@@ -41,13 +42,17 @@ func main() {
 	template := x509.Certificate{
 		SerialNumber: new(big.Int).SetInt64(0),
 		Subject: pkix.Name{
+			Country:      []string{"AU"},
+			Province:     []string{"NSW"},
+			Locality:     []string{"Sydney"},
+			CommonName:   *commonName,
 			Organization: []string{*organization},
 		},
 		NotBefore: notBefore,
 		NotAfter:  notAfter,
 
-		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		KeyUsage: x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+		//ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 		BasicConstraintsValid: true,
 	}
 
@@ -83,7 +88,9 @@ func main() {
 		template.IsCA = true
 		template.KeyUsage |= x509.KeyUsageCertSign
 	case "client":
+		template.ExtKeyUsage = []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth}
 	case "server":
+		template.ExtKeyUsage = []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}
 	}
 
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, parent, &privateKey.PublicKey, *signingKey)
