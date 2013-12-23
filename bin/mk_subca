@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#CNF=CA/ca-openssl.cnf
+CNF=SubCA/openssl.cnf
+openssl req -config "$CNF" -new -keyout SubCA/key.pem -out SubCA/sub.csr || exit 1
+
+
+#openssl req -config "$CNF" -new -keyout sub.key -out sub.csr -subj "/CN=Sub CA" -nodes -extensions v3_req
+openssl x509 -extfile CA/ca-openssl.cnf -req  -in SubCA/sub.csr -CA CA/ca-cert.pem -CAkey CA/ca-key.pem -days 365 -out SubCA/sub.pem  -extensions v3_ca

@@ -1,0 +1,15 @@
+[ req ]
+prompt				= no
+default_bits		= 2048
+distinguished_name	= req_distinguished_name
+
+[ req_distinguished_name ]
+C                      = AU
+ST                     = NSW
+L                      = Sydney
+O                      = Async Pty. Ltd.
+OU                     = Async Certification Authority
+CN                     = Async Sub CA
+emailAddress           = support@async-games.com
+
+
