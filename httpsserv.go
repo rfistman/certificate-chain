@@ -29,15 +29,15 @@ func helloHandler(w http.ResponseWriter, req *http.Request) {
 func main() {
 	var err error
 	http.HandleFunc("/hello", helloHandler)
-	serverCert := "server-cert.pem"
-	serverKey := "server-key.pem"
+	serverCert := "go/server/cert.pem"
+	serverKey := "go/server/key.pem"
 
 	// with localhost CommonName
 	// openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout server-key.pem -out server-cert.pem
 	// for iPhone client:
 	// openssl x509 -inform pem -outform der -in server-cert.pem -out server-cert.cer
 
-	if false {
+	if true {
 		// can hit with (NB: requires common name match)
 		// curl --cacert server-cert.pem https://localhost:8081/hello
 		// openssl s_client -connect localhost:8081 -tls1 + http requests
