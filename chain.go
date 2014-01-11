@@ -12,9 +12,13 @@ import (
 	"time"
 )
 
+// rand.Reader().ReadInt64?
+
 // adapted from http://golang.org/src/pkg/crypto/tls/generate_cert.go
 // BUG: serial number
-
+// TODO:
+// DNSNames:       []string{"test.example.com"},
+// EmailAddresses: []string{"gopher@golang.org"},
 // TODO: this is multi, fix up
 var (
 	rsaBits      = flag.Int("rsa-bits", 2048, "Size of RSA keys to generate")
@@ -47,6 +51,7 @@ func main() {
 			Locality:     []string{"Sydney"},
 			CommonName:   *commonName,
 			Organization: []string{*organization},
+			//OrganizationalUnit: []string{"Async Certification Authority"},
 		},
 		NotBefore: notBefore,
 		NotAfter:  notAfter,
@@ -87,6 +92,11 @@ func main() {
 	case "ca":
 		template.IsCA = true
 		template.KeyUsage |= x509.KeyUsageCertSign
+		// AGL says whole chain must either have no key usage specified or
+		// client auth all the way or have extended any. Due to bug in for loop,
+		// need to build go from source after 10 dec 2013.
+		// https://groups.google.com/forum/#!topic/golang-nuts/753fOH9mQz0
+		template.ExtKeyUsage = []x509.ExtKeyUsage{x509.ExtKeyUsageAny}
 	case "client":
 		template.ExtKeyUsage = []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth}
 	case "server":
