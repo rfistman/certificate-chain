@@ -29,7 +29,7 @@ func helloHandler(w http.ResponseWriter, req *http.Request) {
 func main() {
 	var err error
 	http.HandleFunc("/hello", helloHandler)
-	serverCert := "go/server/cert.pem"
+	serverCert := "go/server/cert-chain.pem" // don't forget intermediates
 	serverKey := "go/server/key.pem"
 
 	// with localhost CommonName
@@ -37,7 +37,7 @@ func main() {
 	// for iPhone client:
 	// openssl x509 -inform pem -outform der -in server-cert.pem -out server-cert.cer
 
-	if true {
+	if false {
 		// can hit with (NB: requires common name match)
 		// curl --cacert server-cert.pem https://localhost:8081/hello
 		// openssl s_client -connect localhost:8081 -tls1 + http requests
@@ -51,7 +51,7 @@ func main() {
 		// handy. to squash self sign warning add -CAfile server-cert.pem
 		// openssl s_client -connect localhost:8081 -key client-key.pem -cert client-cert.pem -tls1
 		clientCertPool := x509.NewCertPool()
-		caCertPEM, err := ioutil.ReadFile("FistCA/FistCA-cert.pem")
+		caCertPEM, err := ioutil.ReadFile("./go/ca/cert.pem") // client trust root
 		if err != nil {
 			log.Fatal(err)
 		}
