@@ -96,6 +96,9 @@ func main() {
 		// client auth all the way or have extended any. Due to bug in for loop,
 		// need to build go from source after 10 dec 2013.
 		// https://groups.google.com/forum/#!topic/golang-nuts/753fOH9mQz0
+		// update: https://code.google.com/p/go/issues/detail?id=7423
+		// can do custom with "RequireAnyClientCert and then verify the chain from tls.Conn.ConnectionState()"
+		// http://stackoverflow.com/questions/20875626/tls-clientauth-requires-extkeyusageclientauth-through-whole-certificate-chain
 		template.ExtKeyUsage = []x509.ExtKeyUsage{x509.ExtKeyUsageAny}
 	case "client":
 		template.ExtKeyUsage = []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth}
